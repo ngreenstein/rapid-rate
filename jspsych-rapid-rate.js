@@ -42,7 +42,41 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		// Generate DOM
 		display_element.classList.add("rr-container");
-		var ratingHtml = "";
+		var ratingHtml = '<style type="text/css">\
+		.rr-rating-outer {\
+			margin-bottom: 5px;\
+			box-sizing: padding-box;\
+		}\
+		\
+		.rr-rating-inner, .rr-rating-none {\
+			border: 2px solid black;\
+			display: inline-block;\
+			padding-left: 4px;\
+			padding-right: 4px;\
+		}\
+		\
+		.rr-rating-inner {\
+			width: 250px;\
+			position: relative;\
+		}\
+		\
+		.rr-rating-inner span {\
+			pointer-events: none;\
+		}\
+		\
+		.rr-rating-none.chosen {\
+			background: #ff816d;\
+		}\
+		\
+		.rr-rating-fill {\
+			background: #ff816d;\
+			position: absolute;\
+			top: 0;\
+			bottom: 0;\
+			left: 0;\
+			z-index: -1;\
+		}\
+		</style>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
 			var thisItem = trial.items[i];
 			ratingHtml += '<div class="rr-rating-outer" data-rr-item="' + thisItem + '">\n';
