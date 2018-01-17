@@ -104,7 +104,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			target.siblings(".rr-rating-none").removeClass("chosen");
 		});
 		
-		// Committ a rating
+		// Commit a rating
 		$(".rr-rating-inner").click(function(event) {
 			target = $(event.target);
 			target.attr("data-rr-justcommitted", "true");
@@ -124,7 +124,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			}
 		});
 		
-		// When the user leaves the rating bar, restore previous status if no committ was made
+		// When the user leaves the rating bar, restore previous status if no commit was made
 		$(".rr-rating-inner").mouseleave(function(event) {
 			target = $(event.target);
 			if (target.attr("data-rr-justcommitted") == "true") {
@@ -169,8 +169,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			}
 		});
 		
-		// When the committ key is pressed, validate ratings and end trial if appropriate
-		var committKeyPressed = function(data) {
+		// When the commit key is pressed, validate ratings and end trial if appropriate
+		var commitKeyPressed = function(data) {
 			
 			var clean = true;
 			var ratings = {};
@@ -198,9 +198,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			}
 		};
 		
-		// Listen for the committ key
+		// Listen for the commit key
 		var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-			callback_function: committKeyPressed,
+			callback_function: commitKeyPressed,
 			valid_responses: [trial.commitKey],
 			rt_method: "date",
 			persist: true,
