@@ -170,7 +170,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		});
 		
 		// When the committ key is pressed, validate ratings and end trial if appropriate
-		var committKeyPressed = function() {
+		var committKeyPressed = function(data) {
 			
 			var clean = true;
 			var ratings = {};
@@ -191,6 +191,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 					ratings: ratings,
 					allowedNone: trial.allowNone,
 					allowedBlank: trial.allowBlank,
+					rt: data.rt,
 				};
 				jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
 				jsPsych.finishTrial(trialData);
