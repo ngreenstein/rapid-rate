@@ -24,6 +24,12 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "Whether to allow user to supply a rating of 'none' rather than 0-100",
 			},
+			logCommits: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether rapid-rate should record each time a rating is committed (captures order of ratings, timing, user changing their mind, etc).",
+			},
 			items: {
 				type: jsPsych.plugins.parameterType.ARRAY,
 				default: [],
@@ -39,6 +45,11 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		trial.commitKey = typeof trial.commitKey == "undefined" ? 32 : trial.commitKey; // spacebar to commit by default
 		trial.allowBlank = typeof trial.allowBlank == "undefined" ? false : trial.allowBlank; // disallow blanks by default
 		trial.allowNone = typeof trial.allowNone == "undefined" ? true : trial.allowNone // allow 'none' ratings by default
+		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
+		
+		// Time mark and container for commitment log
+		var startTime = Date.now();
+		var commitLog = [];
 		
 		// Generate DOM
 		display_element.classList.add("rr-container");
@@ -99,16 +110,27 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		// When the user enters the rating bar, hide any highight in the None box
 		$(".rr-rating-inner").mouseenter(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
 			target.attr("data-rr-justcommitted", "false");
 			target.siblings(".rr-rating-none").removeClass("chosen");
 		});
 		
 		// Commit a rating
 		$(".rr-rating-inner").click(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
+			var rating = target.attr("data-rr-fill");
+			if (trial.logCommits) {
+				var timeOffset = Date.now() - startTime;
+				var item = target.parent().attr("data-rr-item");
+				var logEntry = {
+					time: timeOffset,
+					item: item,
+					rating: rating,
+				};
+				commitLog.push(logEntry);
+			}
 			target.attr("data-rr-justcommitted", "true");
-			target.parent().attr("data-rr-rating", target.attr("data-rr-fill"));
+			target.parent().attr("data-rr-rating", rating);
 		});
 		
 		// Update the rating bar highlight as the mouse moves
@@ -126,7 +148,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		// When the user leaves the rating bar, restore previous status if no commit was made
 		$(".rr-rating-inner").mouseleave(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
 			if (target.attr("data-rr-justcommitted") == "true") {
 				target.attr("data-rr-justcommitted", "false");
 			}
@@ -142,21 +164,31 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		// When the user enters the None box, highlight None and hide the current fill
 		$(".rr-rating-none").mouseenter(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
 			target.siblings(".rr-rating-inner").find(".rr-rating-fill").width(0);
 			target.addClass("chosen");
 		});
 		
 		// Commit a rating of None
 		$(".rr-rating-none").click(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
+			if (trial.logCommits) {
+				var timeOffset = Date.now() - startTime;
+				var item = target.parent().attr("data-rr-item");
+				var logEntry = {
+					time: timeOffset,
+					item: item,
+					rating: -1,
+				};
+				commitLog.push(logEntry);
+			}
 			target.parent().attr("data-rr-rating", "-1");
 		});
 		
 		$(".rr-rating-none").mouseleave(function(event) {
-			target = $(event.target);
+			var target = $(event.target);
 			var fillPct = parseInt(target.parent().attr("data-rr-rating")) / 100;
-			noneChosen = false;
+			var noneChosen = false;
 			if (fillPct >= 0) {
 				// If the user leaves the None box without committing, restore the previous fill
 				target.siblings(".rr-rating-inner").find(".rr-rating-fill").width(fillPct * width);
@@ -193,6 +225,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 					allowedBlank: trial.allowBlank,
 					rt: data.rt,
 				};
+				if (trial.logCommits) {
+					trialData["commitLog"] = commitLog;
+				}
 				jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
 				jsPsych.finishTrial(trialData);
 			}
