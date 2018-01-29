@@ -152,8 +152,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			var target = $(event.target);
 			if (target.attr("data-rr-justcommitted") != "true") {
 				var mouseX = event.pageX - leftOffset;
-				var rating = Math.round((mouseX / width) * 100);
-				if (rating >= 0 && rating <= 100) {
+				var rating = Math.ceil((mouseX / width) * 100);
+				if (rating >= 1 && rating <= 100) {
 					target.attr("data-rr-fill", rating);
 					target.find(".rr-rating-fill").width(mouseX);
 				}
