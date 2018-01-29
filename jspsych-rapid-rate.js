@@ -99,6 +99,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			left: 0;\
 			z-index: -1;\
 		}\
+		\
+		.rr-missing {\
+			font-weight: bold;\
+		}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
@@ -144,7 +148,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				commitLog.push(logEntry);
 			}
 			target.attr("data-rr-justcommitted", "true");
-			target.parent().attr("data-rr-rating", rating);
+			target.parent().attr("data-rr-rating", rating).removeClass("rr-missing");
 		});
 		
 		// Update the rating bar highlight as the mouse moves
@@ -196,7 +200,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				};
 				commitLog.push(logEntry);
 			}
-			target.parent().attr("data-rr-rating", "-1");
+			target.parent().attr("data-rr-rating", "-1").removeClass("rr-missing");
 		});
 		
 		$(".rr-rating-none").mouseleave(function(event) {
@@ -226,7 +230,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				var ratingVal = thisEl.attr("data-rr-rating");
 				if (!trial.allowBlank && isNaN(ratingVal)) {
 					clean = false;
-					return false; // Just breaks the jQuery each
+					thisEl.addClass("rr-missing");
 				}
 				ratings[ratingKey] = ratingVal;
 			});
