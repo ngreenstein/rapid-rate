@@ -36,6 +36,18 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "An array of strings representing names of items to rate",
 			},
+			topMsg: {
+				type: jsPsych.plugins.parameterType.HTML_STRING,
+				default: null,
+				no_function: false,
+				description: "A message or prompt to display above the ratings UI. Can be HTML; will be wrapped in a <p> tag.",
+			},
+			bottomMsg: {
+				type: jsPsych.plugins.parameterType.HTML_STRING,
+				default: null,
+				no_function: false,
+				description: "A message or prompt to display below the ratings UI. Can be HTML; will be wrapped in a <p> tag.",
+			},
 		},
 	},
 
@@ -87,7 +99,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			left: 0;\
 			z-index: -1;\
 		}\
-		</style>\n';
+		</style>\
+		<p>' + trial.topMsg + '</p>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
 			var thisItem = trial.items[i];
 			ratingHtml += '<div class="rr-rating-outer" data-rr-item="' + thisItem + '">\n';
@@ -100,6 +113,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			ratingHtml += '\t</div>\n';
 			ratingHtml += '</div>\n';
 		};
+		ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
 		
 		display_element.innerHTML = ratingHtml;
 		
