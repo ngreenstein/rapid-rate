@@ -117,7 +117,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			ratingHtml += '\t</div>\n';
 			ratingHtml += '</div>\n';
 		};
-		ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
+		// ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
+		ratingHtml += "<input type='button' id='submitBtn' value='Submit'/>\n"
 		
 		display_element.innerHTML = ratingHtml;
 		
@@ -259,6 +260,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			persist: true,
 			allow_held_key: false,
 		});
+		
+		$("#submitBtn").click(commitKeyPressed);
 
 	};
 
