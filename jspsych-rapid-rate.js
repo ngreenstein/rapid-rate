@@ -72,7 +72,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		}\
 		\
 		.rr-rating-inner, .rr-rating-none {\
-			border: 2px solid black;\
+			border: 2px solid white;\
 			display: inline-block;\
 			padding-left: 4px;\
 			padding-right: 4px;\
@@ -103,6 +103,17 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		.rr-missing {\
 			font-weight: bold;\
 		}\
+		.button {\
+		  background-color: #ff816d; /* Green */\
+		  border: none;\
+		  color: white;\
+		  padding: 15px 32px;\
+		  text-align: center;\
+		  text-decoration: none;\
+		  display: inline-block;\
+		  font-size: 16px;\
+		}\
+		.rr-rating-outer[data-rr-rating] {color:silver;}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
@@ -117,9 +128,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			ratingHtml += '\t</div>\n';
 			ratingHtml += '</div>\n';
 		};
-		// ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
-		ratingHtml += "<input type='button' id='submitBtn' value='Submit'/>\n"
 		
+		// ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
+		ratingHtml += "<input type='button' id='submitBtn' value='Submit' class='button'/>\n"		
 		display_element.innerHTML = ratingHtml;
 		
 		// All rows should be the same, so use the first one to cache offset/width info
@@ -260,8 +271,13 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			persist: true,
 			allow_held_key: false,
 		});
-		
+
 		$("#submitBtn").click(commitKeyPressed);
+
+		var autoCommit = setTimeout(function()
+		{
+			
+		}, 60 * 1000);
 
 	};
 
