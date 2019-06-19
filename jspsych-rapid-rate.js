@@ -42,6 +42,12 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "Whether rapid-rate should record each time a rating is committed (captures order of ratings, timing, user changing their mind, etc).",
 			},
+			defaultNone: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether to pre-select 'None' for all items",
+			},
 			items: {
 				type: jsPsych.plugins.parameterType.ARRAY,
 				default: [],
@@ -72,6 +78,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		trial.allowBlank = typeof trial.allowBlank == "undefined" ? false : trial.allowBlank; // disallow blanks by default
 		trial.allowNone = typeof trial.allowNone == "undefined" ? true : trial.allowNone // allow 'none' ratings by default
 		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
+		trial.defaultNone = typeof trial.defaultNone == "undefined" ? false : trial.defaultNone // do not default to None by default
 		
 		// Time mark and container for commit log
 		var startTime = Date.now();
@@ -139,9 +146,17 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		<p>' + trial.topMsg + '</p>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
 			var thisItem = trial.items[i];
-			ratingHtml += '<div class="rr-rating-outer" data-rr-item="' + thisItem + '">\n';
+			ratingHtml += '<div class="rr-rating-outer" data-rr-item="' + thisItem + '"';
+			if (trial.defaultNone) {
+				ratingHtml += ' data-rr-rating="-1"';
+			}
+			ratingHtml += '>\n';
 			if (trial.allowNone) {
-				ratingHtml += '\t<div class="rr-rating-none">None</div>\n';
+				ratingHtml += '\t<div class="rr-rating-none'
+				if (trial.defaultNone) {
+					ratingHtml += ' chosen';
+				}
+				ratingHtml += '">None</div>\n';
 			}
 			ratingHtml += '\t<div class="rr-rating-inner">\n';
 			ratingHtml += '\t\t<span>' + thisItem + '</span>\n';
