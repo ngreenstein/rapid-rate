@@ -6,17 +6,29 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		name: "rapid-rate",
 		description: "jsPsych plugin for quickly gathering percentage ratings of many items",
 		parameters: {
-			commitKey: {
+			submitKey: {
 				type: jsPsych.plugins.parameterType.KEYCODE,
 				default: 32,
 				no_function: false,
-				description: "Code of key used to commit all ratings and end trial",
+				description: "Code of key used to submit all ratings and end trial",
+			},
+			submitButton: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether to show a submit button",
+			},
+			rightClickSubmit: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether to submit by right-clicking anywhere",
 			},
 			allowBlank: {
 				type: jsPsych.plugins.parameterType.BOOL,
 				default: false,
 				no_function: false,
-				description: "Whether to allow user to commit ratings and end trial with blank/unrated items",
+				description: "Whether to allow user to submit ratings and end trial with blank/unrated items",
 			},
 			allowNone: {
 				type: jsPsych.plugins.parameterType.BOOL,
@@ -54,12 +66,14 @@ jsPsych.plugins["rapid-rate"] = (function() {
 	plugin.trial = function(display_element, trial) {
 
 		// Default parameter values
-		trial.commitKey = typeof trial.commitKey == "undefined" ? 32 : trial.commitKey; // spacebar to commit by default
+		trial.submitKey = typeof trial.submitKey == "undefined" ? 32 : trial.submitKey; // spacebar to submit by default
+		trial.submitButton = typeof trial.submitButton == "undefined" ? false : trial.submitButton; // no submit button by default
+		trial.rightClickSubmit = typeof trial.rightClickSubmit == "undefined" ? false : trial.rightClickSubmit; // no right-click submit by default
 		trial.allowBlank = typeof trial.allowBlank == "undefined" ? false : trial.allowBlank; // disallow blanks by default
 		trial.allowNone = typeof trial.allowNone == "undefined" ? true : trial.allowNone // allow 'none' ratings by default
 		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
 		
-		// Time mark and container for commitment log
+		// Time mark and container for commit log
 		var startTime = Date.now();
 		var commitLog = [];
 		
@@ -136,8 +150,15 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			ratingHtml += '</div>\n';
 		};
 		
-		// ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
-		ratingHtml += "<input type='button' id='submitBtn' value='Submit' class='button'/>\n"		
+		if (trial.bottomMsg) {
+			ratingHtml += '<p>' + trial.bottomMsg + '</p>\n';
+		}
+		
+		// Add a submit button if specified
+		if (trial.submitButton) {
+			ratingHtml += "<input type='button' id='submitBtn' value='Submit' class='button'/>\n"	;
+		}
+		
 		display_element.innerHTML = ratingHtml;
 		
 		// All rows should be the same, so use the first one to cache offset/width info
@@ -238,8 +259,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			}
 		});
 		
-		// When the commit key is pressed, validate ratings and end trial if appropriate
-		var commitKeyPressed = function(data) {
+		// When the submit key is pressed, validate ratings and end trial if appropriate
+		var submitKeyPressed = function(data) {
 			
 			var clean = true;
 			var ratings = {};
@@ -270,21 +291,19 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			}
 		};
 		
-		// Listen for the commit key
+		// Listen for the submit key
 		var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
-			callback_function: commitKeyPressed,
-			valid_responses: [trial.commitKey],
+			callback_function: submitKeyPressed,
+			valid_responses: [trial.submitKey],
 			rt_method: "date",
 			persist: true,
 			allow_held_key: false,
 		});
+		
+		// If specified, listen for right clicks to submit
+		$("body").contextmenu(submitKeyPressed);
 
-		$("#submitBtn").click(commitKeyPressed);
-
-		var autoCommit = setTimeout(function()
-		{
-			
-		}, 60 * 1000);
+		$("#submitBtn").click(submitKeyPressed);
 
 	};
 
