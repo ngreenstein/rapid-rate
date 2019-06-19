@@ -66,6 +66,11 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		// Generate DOM
 		display_element.classList.add("rr-container");
 		var ratingHtml = '<style type="text/css">\
+		body {\
+			background-color: black;\
+			color: white;\
+		}\
+		\
 		.rr-rating-outer {\
 			margin-bottom: 5px;\
 			box-sizing: padding-box;\
@@ -113,7 +118,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		  display: inline-block;\
 		  font-size: 16px;\
 		}\
-		.rr-rating-outer[data-rr-rating] {color:silver;}\
+		.rr-rating-outer[data-rr-rating] {\
+			color: silver;\
+		}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
 		for (var i = 0; i < trial.items.length; i ++) {
