@@ -92,6 +92,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			color: white;\
 		}\
 		\
+		.jspsych-content {\
+			text-align: left;\
+		}\
+		\
 		.rr-rating-outer {\
 			margin-bottom: 5px;\
 			box-sizing: padding-box;\
@@ -111,6 +115,11 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		\
 		.rr-rating-inner span {\
 			pointer-events: none;\
+			display: inline-block;\
+		}\
+		\
+		.rr-outside-label {\
+			padding-left: 5px;\
 		}\
 		\
 		.rr-rating-none.chosen {\
@@ -159,9 +168,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				ratingHtml += '">None</div>\n';
 			}
 			ratingHtml += '\t<div class="rr-rating-inner">\n';
-			ratingHtml += '\t\t<span>' + thisItem + '</span>\n';
+			ratingHtml += '\t\t<span></span>\n';
 			ratingHtml += '\t\t<div class="rr-rating-fill"></div>\n';
 			ratingHtml += '\t</div>\n';
+			ratingHtml += '\t<span class="rr-outside-label">' + thisItem + '</span>\n';
 			ratingHtml += '</div>\n';
 		};
 		
