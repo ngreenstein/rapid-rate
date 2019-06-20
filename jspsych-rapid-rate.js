@@ -48,6 +48,12 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "Whether to pre-select 'None' for all items",
 			},
+			showShadows: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether to, when the user rated an item on the previous rapid-rate screen, show a shadow of that rating",
+			},
 			items: {
 				type: jsPsych.plugins.parameterType.ARRAY,
 				default: [],
@@ -79,6 +85,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		trial.allowNone = typeof trial.allowNone == "undefined" ? true : trial.allowNone // allow 'none' ratings by default
 		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
 		trial.defaultNone = typeof trial.defaultNone == "undefined" ? false : trial.defaultNone // do not default to None by default
+		trial.showShadows = typeof trial.showShadows == "undefined" ? false : trial.showShadows // do not show shadows by default
 		
 		// Time mark and container for commit log
 		var startTime = Date.now();
@@ -132,7 +139,17 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			top: 0;\
 			bottom: 0;\
 			left: 0;\
+			z-index: -2;\
+		}\
+		\
+		.rr-shadow {\
+			background: gray;\
+		}\
+		\
+		.rr-rating-fill.rr-shadow {\
+			background: white;\
 			z-index: -1;\
+			opacity: 0.6;\
 		}\
 		\
 		.rr-missing {\
@@ -153,6 +170,15 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
+		
+		lastVals = {};
+		if (trial.showShadows) {
+			shadowCol = jsPsych.data.get().select("rr-shadow-ratings")
+			if (shadowCol.count() > 0) {
+				lastVals = shadowCol.values[0];
+			}
+		}
+		
 		for (var i = 0; i < trial.items.length; i ++) {
 			var thisItem = trial.items[i];
 			ratingHtml += '<div class="rr-rating-outer" data-rr-item="' + thisItem + '"';
@@ -165,11 +191,17 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				if (trial.defaultNone) {
 					ratingHtml += ' chosen';
 				}
+				if (trial.showShadows && lastVals[thisItem] && lastVals[thisItem] < 0) {
+					ratingHtml += ' rr-shadow';
+				}
 				ratingHtml += '">None</div>\n';
 			}
 			ratingHtml += '\t<div class="rr-rating-inner">\n';
 			ratingHtml += '\t\t<span></span>\n';
 			ratingHtml += '\t\t<div class="rr-rating-fill"></div>\n';
+			if (trial.showShadows && lastVals[thisItem] && lastVals[thisItem] >= 0) {
+				ratingHtml += '\t\t<div class="rr-rating-fill rr-shadow" data-rr-shadow="' + lastVals[thisItem] + '"></div>\n';
+			}
 			ratingHtml += '\t</div>\n';
 			ratingHtml += '\t<span class="rr-outside-label">' + thisItem + '</span>\n';
 			ratingHtml += '</div>\n';
@@ -190,6 +222,15 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		var sampleRow = $(".rr-rating-inner").first();
 		var leftOffset = sampleRow.offset().left + parseInt(sampleRow.css("borderLeftWidth"), 10); //Subtract the border width
 		var width = sampleRow.innerWidth();
+		
+		// Size shadow bars once the width is established
+		if (trial.showShadows) {
+			$(document).ready(function() {
+				$(".rr-rating-fill.rr-shadow").each(function() {
+					$(this).width(Math.ceil(($(this).attr("data-rr-shadow") / 100) * width));
+				});
+			});
+		}
 		
 		// When the user enters the rating bar, hide any highight in the None box
 		$(".rr-rating-inner").mouseenter(function(event) {
@@ -224,7 +265,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				var rating = Math.ceil((mouseX / width) * 100);
 				if (rating >= 1 && rating <= 100) {
 					target.attr("data-rr-fill", rating);
-					target.find(".rr-rating-fill").width(mouseX);
+					target.find(".rr-rating-fill:not(.rr-shadow)").width(mouseX);
 				}
 			}
 		});
@@ -242,13 +283,13 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			} else if (fillPct < 0) {
 				target.siblings(".rr-rating-none").addClass("chosen");
 			}
-			target.find(".rr-rating-fill").width(fillWidth);
+			target.find(".rr-rating-fill:not(.rr-shadow)").width(fillWidth);
 		});
 		
 		// When the user enters the None box, highlight None and hide the current fill
 		$(".rr-rating-none").mouseenter(function(event) {
 			var target = $(event.target);
-			target.siblings(".rr-rating-inner").find(".rr-rating-fill").width(0);
+			target.siblings(".rr-rating-inner").find(".rr-rating-fill:not(.rr-shadow)").width(0);
 			target.addClass("chosen");
 		});
 		
@@ -274,7 +315,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			var noneChosen = false;
 			if (fillPct >= 0) {
 				// If the user leaves the None box without committing, restore the previous fill
-				target.siblings(".rr-rating-inner").find(".rr-rating-fill").width(fillPct * width);
+				target.siblings(".rr-rating-inner").find(".rr-rating-fill:not(.rr-shadow)").width(fillPct * width);
 			} else if (fillPct < 0) {
 				// Only keep the None box highlighted if the user committed
 				noneChosen = true;
@@ -312,6 +353,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 					trialData["commitLog"] = commitLog;
 				}
 				jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
+				
+				jsPsych.data.addProperties({"rr-shadow-ratings": ratings});
+				
 				jsPsych.finishTrial(trialData);
 			}
 		};
