@@ -360,6 +360,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				}
 				
 				if (submitTimeout) clearTimeout(submitTimeout);
+				$("body").off("contextmenu");
 				jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
 				
 				jsPsych.data.addProperties({"rr-shadow-ratings": ratings});
@@ -381,8 +382,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			allow_held_key: false,
 		});
 		
-		// If specified, listen for right clicks to submit
-		$("body").contextmenu(submitKeyPressed);
+		if (trial.rightClickSubmit) {
+			// If specified, listen for right clicks to submit
+			$("body").contextmenu(submitKeyPressed);
+		}
 
 		$("#submitBtn").click(submitKeyPressed);
 
