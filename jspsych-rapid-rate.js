@@ -54,6 +54,11 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "Whether to, when the user rated an item on the previous rapid-rate screen, show a shadow of that rating",
 			},
+			submitTimeout: {
+				type: jsPsych.plugins.parameterType.INT,
+				default: -1,
+				description: "Number of seconds after which to automatically attempt to submit ratings. Pass a negative number to disable.",
+			},
 			items: {
 				type: jsPsych.plugins.parameterType.ARRAY,
 				default: [],
@@ -86,6 +91,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
 		trial.defaultNone = typeof trial.defaultNone == "undefined" ? false : trial.defaultNone // do not default to None by default
 		trial.showShadows = typeof trial.showShadows == "undefined" ? false : trial.showShadows // do not show shadows by default
+		trial.submitTimeout = typeof trial.submitTimeout == "undefined" ? -1 : trial.submitTimeout // do not automatically submit by default
 		
 		// Time mark and container for commit log
 		var startTime = Date.now();
@@ -347,11 +353,13 @@ jsPsych.plugins["rapid-rate"] = (function() {
 					ratings: ratings,
 					allowedNone: trial.allowNone,
 					allowedBlank: trial.allowBlank,
-					rt: data.rt,
+					rt: Date.now() - startTime,
 				};
 				if (trial.logCommits) {
 					trialData["commitLog"] = commitLog;
 				}
+				
+				if (submitTimeout) clearTimeout(submitTimeout);
 				jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
 				
 				jsPsych.data.addProperties({"rr-shadow-ratings": ratings});
@@ -359,6 +367,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				jsPsych.finishTrial(trialData);
 			}
 		};
+		
+		if (trial.submitTimeout > 0) {
+			var submitTimeout = setTimeout(submitKeyPressed, trial.submitTimeout * 1000);
+		}
 		
 		// Listen for the submit key
 		var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
