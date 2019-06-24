@@ -383,7 +383,10 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		if (trial.rightClickSubmit) {
 			// If specified, listen for right clicks to submit
-			$("body").contextmenu(submitKeyPressed);
+			$("body").contextmenu(function() {
+				submitKeyPressed();
+				return false;
+			});
 		}
 
 		$("#submitBtn").click(submitKeyPressed);
