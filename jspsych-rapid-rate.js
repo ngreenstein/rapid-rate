@@ -153,9 +153,8 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		}\
 		\
 		.rr-rating-fill.rr-shadow {\
-			background: white;\
-			z-index: -1;\
-			opacity: 0.6;\
+			background: none;\
+			border-right: 3px solid white;\
 		}\
 		\
 		.rr-missing {\
