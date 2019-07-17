@@ -54,6 +54,12 @@ jsPsych.plugins["rapid-rate"] = (function() {
 				no_function: false,
 				description: "Whether to, when the user rated an item on the previous rapid-rate screen, show a shadow of that rating",
 			},
+			darkTheme: {
+				type: jsPsych.plugins.parameterType.BOOL,
+				default: false,
+				no_function: false,
+				description: "Whether to render white-on-black instead of black-on-white.",
+			},
 			submitTimeout: {
 				type: jsPsych.plugins.parameterType.INT,
 				default: -1,
@@ -91,6 +97,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		trial.logCommits = typeof trial.logCommits == "undefined" ? false : trial.logCommits // do not log commits by default
 		trial.defaultNone = typeof trial.defaultNone == "undefined" ? false : trial.defaultNone // do not default to None by default
 		trial.showShadows = typeof trial.showShadows == "undefined" ? false : trial.showShadows // do not show shadows by default
+		trial.darkTheme = typeof trial.darkTheme == "undefined" ? false : trial.darkTheme // render light theme by default
 		trial.submitTimeout = typeof trial.submitTimeout == "undefined" ? -1 : trial.submitTimeout // do not automatically submit by default
 		
 		// Time mark and container for commit log
@@ -99,10 +106,13 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		
 		// Generate DOM
 		display_element.classList.add("rr-container");
+		var bgColor = trial.darkTheme ? "black" : "white";
+		var textColor = trial.darkTheme ? "white" : "black";
+		var softTextColor = trial.darkTheme ? "silver" : "black";
 		var ratingHtml = '<style type="text/css">\
 		body {\
-			background-color: black;\
-			color: white;\
+			background-color: ' + bgColor + ';\
+			color: ' + textColor + ';\
 		}\
 		\
 		.jspsych-content {\
@@ -115,7 +125,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		}\
 		\
 		.rr-rating-inner, .rr-rating-none {\
-			border: 2px solid white;\
+			border: 2px solid ' + textColor + ';\
 			display: inline-block;\
 			padding-left: 4px;\
 			padding-right: 4px;\
@@ -148,13 +158,9 @@ jsPsych.plugins["rapid-rate"] = (function() {
 			z-index: -2;\
 		}\
 		\
-		.rr-shadow {\
-			background: gray;\
-		}\
-		\
 		.rr-rating-fill.rr-shadow {\
 			background: none;\
-			border-right: 3px solid white;\
+			border-right: 3px solid ' + textColor + ';\
 		}\
 		\
 		.rr-missing {\
@@ -163,7 +169,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		.button {\
 		  background-color: #ff816d; /* Green */\
 		  border: none;\
-		  color: white;\
+		  color: ' + textColor + ';\
 		  padding: 15px 32px;\
 		  text-align: center;\
 		  text-decoration: none;\
@@ -171,7 +177,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		  font-size: 16px;\
 		}\
 		.rr-rating-outer[data-rr-rating] {\
-			color: silver;\
+			color: ' + softTextColor + ';\
 		}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
