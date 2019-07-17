@@ -108,7 +108,6 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		display_element.classList.add("rr-container");
 		var bgColor = trial.darkTheme ? "black" : "white";
 		var textColor = trial.darkTheme ? "white" : "black";
-		var softTextColor = trial.darkTheme ? "silver" : "black";
 		var ratingHtml = '<style type="text/css">\
 		body {\
 			background-color: ' + bgColor + ';\
@@ -177,7 +176,7 @@ jsPsych.plugins["rapid-rate"] = (function() {
 		  font-size: 16px;\
 		}\
 		.rr-rating-outer[data-rr-rating] {\
-			color: ' + softTextColor + ';\
+			color: ' + textColor + ';\
 		}\
 		</style>\
 		<p>' + trial.topMsg + '</p>\n';
